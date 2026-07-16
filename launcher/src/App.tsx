@@ -20,6 +20,8 @@ function App() {
   const [games, setGames] = useState<Game[]>([]);
   const [hookPath, setHookPath] = useState<string | null>(null);
   const [tvTheme, setTvTheme] = useState<'theme-1' | 'theme-2'>('theme-1');
+  const [isChangingChannel, setIsChangingChannel] = useState(false);
+  const [isLaunching, setIsLaunching] = useState(false);
 
   const fetchGames = async () => {
     try {
@@ -94,11 +96,32 @@ function App() {
     }
   };
 
+  const handleTabChange = (tab: 'home' | 'progress' | 'settings') => {
+    if (tab === activeTab) return;
+    setIsChangingChannel(true);
+    // Play static noise sound effect
+    const audio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='); // Silent/dummy fallback, real noise can be added later
+    audio.volume = 0.1;
+    audio.play().catch(()=> { /* ignore browser autoplay block */ });
+    
+    setTimeout(() => {
+      setActiveTab(tab);
+      setIsChangingChannel(false);
+    }, 300);
+  };
+
   const launchGame = async (id: string) => {
     try {
+      setIsLaunching(true);
       await invoke('launch_game', { id });
+      
+      // Reset the TV screen back after 1.5 seconds (giving game time to open)
+      setTimeout(() => {
+        setIsLaunching(false);
+      }, 1500);
     } catch (e) {
       console.error("Failed to launch game", e);
+      setIsLaunching(false);
     }
   };
 
@@ -273,7 +296,8 @@ function App() {
         </div>
 
         <div className="crt-screen-wrapper">
-          <div className="crt-content">
+          <div className={`channel-static ${isChangingChannel ? 'active' : ''}`}></div>
+          <div className={`crt-content ${isLaunching ? 'launching' : ''}`}>
             {renderContent()}
           </div>
         </div>
@@ -283,7 +307,7 @@ function App() {
           
           <button 
             className={`tv-button ${activeTab === 'home' ? 'active' : ''}`}
-            onClick={() => setActiveTab('home')}
+            onClick={() => handleTabChange('home')}
           >
             <Play size={24} />
             Channel 1
@@ -292,7 +316,7 @@ function App() {
 
           <button 
             className={`tv-button ${activeTab === 'progress' ? 'active' : ''}`}
-            onClick={() => setActiveTab('progress')}
+            onClick={() => handleTabChange('progress')}
           >
             <TrendingUp size={24} />
             Channel 2
@@ -301,7 +325,7 @@ function App() {
 
           <button 
             className={`tv-button ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('settings')}
+            onClick={() => handleTabChange('settings')}
           >
             <Settings size={24} />
             Channel 3

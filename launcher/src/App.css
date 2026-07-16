@@ -143,6 +143,50 @@
   z-index: 20;
 }
 
+/* TV Static Glitch Animation for Channel Changing */
+@keyframes channelStatic {
+  0% { opacity: 0; }
+  10% { opacity: 0.8; background-position: 10px 10px; }
+  50% { opacity: 0.6; background-position: -20px -20px; }
+  90% { opacity: 0.9; background-position: 30px -10px; }
+  100% { opacity: 0; }
+}
+
+.channel-static {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.channel-static.active {
+  animation: channelStatic 0.3s ease-out;
+}
+
+/* CRT Screen Turn Off / Game Launch Animation */
+@keyframes crtTurnOff {
+  0% {
+    transform: scale(1, 1.3) translate3d(0, 0, 0);
+    filter: brightness(1);
+  }
+  60% {
+    transform: scale(1, 0.001) translate3d(0, 0, 0);
+    filter: brightness(10);
+  }
+  100% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: scale(0, 0.0001) translate3d(0, 0, 0);
+    filter: brightness(0);
+  }
+}
+
+.crt-content.launching {
+  animation: crtTurnOff 0.4s forwards;
+  pointer-events: none;
+}
+
 /* Common Control Panel Styling overrides */
 .tv-button {
   background: linear-gradient(180deg, #555, #333);
