@@ -1,0 +1,592 @@
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  background-image: 
+    radial-gradient(circle at center, #2e2621 0%, #15110e 100%);
+  padding: 20px;
+}
+
+/* The physical TV case Base */
+.tv-case {
+  display: flex;
+  flex-direction: row;
+  height: 85vh;
+  aspect-ratio: 4 / 3;
+  max-width: 70vw;
+  border-radius: 30px;
+  padding: 20px;
+  box-shadow: 
+    inset 4px 4px 10px rgba(255,255,255,0.4),
+    inset -8px -8px 20px rgba(0,0,0,0.5),
+    10px 20px 40px rgba(0,0,0,0.8);
+  position: relative;
+  border: 4px solid #b6b3b1;
+  flex-shrink: 1;
+  z-index: 5;
+  transition: all 0.3s ease;
+}
+
+/* Vintage Wear and Tear Texture Overlay */
+.tv-case::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 10;
+  
+  /* 1. Static Noise, 2. Scratches, 3. Grime/Fading */
+  background-image: 
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(115deg, transparent, transparent 20px, rgba(0,0,0,0.06) 20px, rgba(0,0,0,0.06) 21px),
+    repeating-linear-gradient(35deg, transparent, transparent 50px, rgba(255,255,255,0.04) 50px, rgba(255,255,255,0.04) 51px),
+    radial-gradient(ellipse at 40% 40%, rgba(200, 150, 100, 0.05) 0%, rgba(20, 10, 0, 0.5) 100%);
+    
+  opacity: 0.7;
+  mix-blend-mode: overlay; /* Blends the grime and noise dynamically into the wood/plastic */
+}
+
+/* --- Theme 1: Wood & Stereo (2.png style) --- */
+.tv-case.theme-1 {
+  background: #c68a47; /* Wooden finish */
+  border-color: #7b4c20;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0,0,0,0.03) 10px,
+    rgba(0,0,0,0.03) 20px
+  );
+}
+
+.tv-case.theme-1 .tv-left-panel {
+  display: flex;
+  width: 20%;
+  margin-right: 20px;
+  background: #e4e2df; /* Silver/plastic */
+  border: 3px solid #7b4c20;
+  border-radius: 5px;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.tv-case.theme-1 .tv-control-panel {
+  width: 25%;
+  margin-left: 20px;
+  background: #e4e2df;
+  border: 3px solid #7b4c20;
+  border-radius: 5px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tv-case.theme-1 .crt-screen-wrapper {
+  border: 10px solid #e4e2df;
+  border-radius: 20px;
+}
+
+/* Theme 1 specific speaker grills */
+.theme-1-grill {
+  flex-grow: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    #222,
+    #222 3px,
+    #000 3px,
+    #000 6px
+  );
+  border: 4px solid #b6b3b1;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* --- Theme 2: Dark & Mono (3.png style) --- */
+.tv-case.theme-2 {
+  background: #2a2a2a; /* Dark gray */
+  border-color: #111;
+  border-radius: 10px;
+}
+
+.tv-case.theme-2 .tv-left-panel {
+  display: none; /* No left panel in Theme 2 */
+}
+
+.tv-case.theme-2 .tv-control-panel {
+  width: 25%;
+  margin-left: 20px;
+  background: #1f1f1f;
+  border: 2px solid #000;
+  border-radius: 5px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tv-case.theme-2 .crt-screen-wrapper {
+  border: 10px solid #1a1a1a;
+  border-radius: 10px; /* Sharper corners */
+}
+
+/* The actual glass screen area */
+.crt-screen-wrapper {
+  flex-grow: 1;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(0,0,0,1);
+  min-height: 0;
+  min-width: 0;
+  z-index: 20;
+}
+
+/* Common Control Panel Styling overrides */
+.tv-button {
+  background: linear-gradient(180deg, #555, #333);
+  border: 2px solid #222;
+  border-radius: 4px;
+  color: #fff;
+  padding: 10px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+  transition: transform 0.1s;
+}
+.tv-button:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.tv-button.active {
+  background: linear-gradient(180deg, #4ef5a2, #3ae190);
+  color: #000;
+  border-color: #1f8a55;
+  box-shadow: 0 0 10px rgba(58, 225, 144, 0.5);
+}
+
+.tv-brand {
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 20px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.theme-1 .tv-brand { color: #555; }
+.theme-2 .tv-brand { color: #aaa; }
+
+/* Knobs and Sliders */
+.tv-knob-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: auto;
+  margin-bottom: 20px;
+}
+.tv-knob {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #666, #222);
+  border: 3px solid #111;
+  box-shadow: 2px 4px 10px rgba(0,0,0,0.6);
+  position: relative;
+}
+.tv-knob::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 22px;
+  width: 4px;
+  height: 15px;
+  background: #000;
+  border-radius: 2px;
+}
+.tv-knob-label {
+  margin-top: 8px;
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+}
+.theme-1 .tv-knob-label { color: #333; font-weight: bold; }
+.theme-2 .tv-knob-label { color: #888; }
+
+/* CRT Screen Effect Overlay */
+.crt-screen-wrapper::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.06),
+    rgba(0, 255, 0, 0.02),
+    rgba(0, 0, 255, 0.06)
+  );
+  z-index: 50;
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
+}
+
+/* Flicker animation */
+@keyframes flicker {
+  0% { opacity: 0.95; }
+  5% { opacity: 0.85; }
+  10% { opacity: 0.95; }
+  15% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.crt-content {
+  width: 100%;
+  height: 100%;
+  background: var(--crt-screen);
+  color: var(--crt-highlight);
+  font-family: 'VT323', monospace;
+  padding: 20px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 10;
+  animation: flicker 4s infinite alternate;
+  text-shadow: 0 0 5px var(--crt-highlight), 0 0 10px rgba(58, 225, 144, 0.5);
+}
+
+.crt-content::-webkit-scrollbar {
+  width: 10px;
+}
+.crt-content::-webkit-scrollbar-track {
+  background: #0a0b0c; 
+}
+.crt-content::-webkit-scrollbar-thumb {
+  background: var(--crt-highlight); 
+  border-radius: 5px;
+}
+
+/* The side control panel (TV Buttons) */
+.tv-control-panel {
+  width: 160px;
+  background: var(--tv-panel);
+  border-radius: 10px 40px 40px 10px;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 15px;
+  gap: 20px;
+  box-shadow: inset 4px 0 10px rgba(0,0,0,0.5);
+  border: 4px solid #1c1917;
+}
+
+.tv-brand {
+  color: #a8a29e;
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+  text-shadow: 1px 1px 0px rgba(255,255,255,0.1);
+}
+
+.tv-button {
+  background: var(--tv-button);
+  border: 2px solid #292524;
+  border-radius: 5px;
+  padding: 15px 10px;
+  color: #e7e5e4;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 
+    inset 2px 2px 5px rgba(255,255,255,0.1),
+    2px 2px 5px rgba(0,0,0,0.5);
+  transition: all 0.1s;
+}
+
+.tv-button:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 
+    inset 4px 4px 8px rgba(0,0,0,0.6),
+    0px 0px 2px rgba(0,0,0,0.5);
+  background: var(--tv-button-active);
+}
+
+.tv-button.active {
+  background: #3f3f46;
+  border-color: var(--crt-highlight);
+  color: var(--crt-highlight);
+  box-shadow: 
+    inset 2px 2px 5px rgba(0,0,0,0.5),
+    0 0 10px rgba(58, 225, 144, 0.3);
+}
+
+/* Knobs */
+.tv-knob-container {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.tv-knob {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #57534e;
+  border: 4px solid #292524;
+  box-shadow: 
+    inset 2px 2px 10px rgba(255,255,255,0.2),
+    4px 4px 10px rgba(0,0,0,0.6);
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.tv-knob::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 15px;
+  background: #a8a29e;
+  border-radius: 2px;
+}
+
+.tv-knob:active {
+  transform: rotate(45deg);
+}
+
+.tv-knob-label {
+  font-family: 'Inter', sans-serif;
+  color: #a8a29e;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* Masonry Layout */
+.masonry-grid {
+  columns: 3 250px;
+  column-gap: 20px;
+  padding: 20px;
+}
+
+.game-card {
+  break-inside: avoid;
+  margin-bottom: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--crt-highlight);
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.game-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(58, 225, 144, 0.4);
+  background: rgba(58, 225, 144, 0.1);
+}
+
+.game-card-img {
+  width: 100%;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(58, 225, 144, 0.3);
+  filter: sepia(0.5) hue-rotate(90deg) saturate(2); /* Retro green tint */
+}
+
+.game-card-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #fff;
+  text-shadow: 0 0 5px var(--crt-highlight);
+}
+
+.game-card-stats {
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+  color: var(--crt-highlight);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Header */
+.screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px 20px 20px;
+  border-bottom: 2px dashed rgba(58, 225, 144, 0.3);
+  margin-bottom: 20px;
+}
+
+.screen-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  color: #fff;
+  text-shadow: 0 0 10px var(--crt-highlight);
+}
+
+.add-game-btn {
+  background: transparent;
+  color: var(--crt-highlight);
+  border: 2px solid var(--crt-highlight);
+  padding: 8px 16px;
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.add-game-btn:hover {
+  background: var(--crt-highlight);
+  color: #000;
+}
+
+/* Progress Meter */
+.progress-meter {
+  padding: 20px;
+}
+
+.progress-item {
+  margin-bottom: 30px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--crt-highlight);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--crt-highlight);
+  box-shadow: 0 0 10px var(--crt-highlight);
+  transition: width 0.5s ease-out;
+}
+
+.playtime {
+  font-family: 'VT323', monospace;
+  color: #a3e635; /* Different shade of green for contrast */
+  font-size: 1.2rem;
+}
+
+/* --- Environment Styling (Speakers and Desk) --- */
+.hifi-speaker {
+  width: 15vw;
+  min-width: 150px;
+  max-width: 250px;
+  height: 75vh;
+  background: #38271d; /* Retro wood color */
+  border-radius: 10px;
+  border: 6px solid #291a11;
+  box-shadow: inset 5px 5px 15px rgba(0,0,0,0.6), 10px 20px 40px rgba(0,0,0,0.8);
+  margin: 0 2vw;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  z-index: 2;
+  transition: transform 0.2s;
+  flex-shrink: 2;
+}
+
+.hifi-speaker:hover {
+  transform: scale(1.02);
+}
+
+.speaker-grill-mesh {
+  flex-grow: 1;
+  background-color: #222;
+  background-image: 
+    radial-gradient(#000 35%, transparent 36%),
+    radial-gradient(#000 35%, transparent 36%),
+    linear-gradient(45deg, rgba(255,255,255,0.02) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.02) 75%, rgba(255,255,255,0.02));
+  background-size: 8px 8px, 8px 8px, 4px 4px;
+  background-position: 0 0, 4px 4px, 0 0;
+  border-radius: 5px;
+  border: 3px solid #241812;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.speaker-cone-small {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #111 0%, #333 40%, #0a0a0a 100%);
+  border: 4px solid #000;
+  box-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+.speaker-cone-large {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #111 0%, #2a2a2a 40%, #050505 100%);
+  border: 6px solid #000;
+  box-shadow: 0 0 15px rgba(0,0,0,0.9);
+}
+
+.speaker-brand {
+  text-align: center;
+  color: #c8b28f;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  margin-top: 15px;
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.8);
+}
+
+.desk-surface {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 15vh;
+  background: linear-gradient(to bottom, #2b1d14, #0a0604);
+  z-index: 1;
+  box-shadow: inset 0 15px 30px rgba(0,0,0,0.9);
+  border-top: 2px solid #38271d;
+}
+

@@ -12,7 +12,7 @@ function App() {
         </div>
         <div>
           <a href="#features" style={{color: '#fff', textDecoration: 'none', marginRight: '20px'}}>Features</a>
-          <a href="https://github.com/your-username/retro-x" style={{color: '#fff', textDecoration: 'none'}}>GitHub</a>
+          <a href="https://github.com/samashech/PGR-PC" style={{color: '#fff', textDecoration: 'none'}}>GitHub</a>
         </div>
       </nav>
 
