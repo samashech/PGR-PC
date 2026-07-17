@@ -559,9 +559,8 @@
 }
 
 .game-menu-btn {
-  background: rgba(0, 0, 0, 0.7);
+  background: transparent;
   border: none;
-  border-radius: 50%;
   width: 32px;
   height: 32px;
   display: flex;
@@ -569,10 +568,12 @@
   justify-content: center;
   cursor: pointer;
   transition: background 0.2s;
+  color: #fff;
 }
 
 .game-menu-btn:hover {
-  background: rgba(58, 225, 144, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
 .game-menu-dropdown {

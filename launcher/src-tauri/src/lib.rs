@@ -150,10 +150,8 @@ fn add_game(state: State<AppState>) -> Result<Option<Game>, String> {
             is_steam: false,
         };
 
-        let mut games = state.games.lock().unwrap();
         games.push(new_game.clone());
         save_games(&state.data_path, &games);
-        
         Ok(Some(new_game))
     } else {
         Ok(None)
