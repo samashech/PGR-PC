@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Play, TrendingUp, Settings, PlusCircle, MonitorPlay, Gamepad2, FolderSearch } from 'lucide-react';
-import { invoke, convertFileSrc } from '@tauri-apps/api/core';
+import { Play, TrendingUp, Settings, PlusCircle, MonitorPlay, Gamepad2, FolderSearch, MoreVertical } from 'lucide-react';
+import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import './App.css';
 
@@ -8,6 +8,7 @@ type Game = {
   id: string;
   title: string;
   imageHeight: number;
+  imageWidth?: number;
   completion: number;
   playtime: number;
   path: string;
@@ -23,6 +24,8 @@ function App() {
   const [isChangingChannel, setIsChangingChannel] = useState(false);
   const [isLaunching, setIsLaunching] = useState(false);
   const [gridSize, setGridSize] = useState(250);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [covers, setCovers] = useState<Record<string, string>>({});
 
   const fetchGames = async () => {
     try {
@@ -30,6 +33,23 @@ function App() {
       setGames(g);
       const s = await invoke<{pre_launch_path: string | null}>('get_settings');
       setHookPath(s.pre_launch_path);
+
+      const newCovers: Record<string, string> = {};
+      for (const game of g) {
+        if (game.cover_url) {
+          if (game.cover_url.startsWith('http')) {
+            newCovers[game.id] = game.cover_url;
+          } else {
+            try {
+              const b64 = await invoke<string>('read_image_file', { path: game.cover_url });
+              newCovers[game.id] = b64;
+            } catch(e) {
+              console.error("Failed to load cover", e);
+            }
+          }
+        }
+      }
+      setCovers(prev => ({...prev, ...newCovers}));
     } catch (e) {
       console.error(e);
     }
@@ -70,10 +90,25 @@ function App() {
   const handleSetCover = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await invoke('set_cover_art', { id });
-      fetchGames();
-    } catch (err) {
-      console.error("Failed to set cover art", err);
+      const path = await invoke<string | null>('set_cover_art', { id });
+      if (path) {
+        fetchGames();
+      }
+    } catch (e) {
+      console.error("Failed to set cover", e);
+    }
+  };
+
+  const handleRemoveGame = async (id: string, title: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpenMenuId(null);
+    if (window.confirm(`Are you sure you want to remove ${title} from your library?`)) {
+      try {
+        await invoke('remove_game', { id });
+        fetchGames();
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
@@ -167,22 +202,48 @@ function App() {
                 <p>Click "Add Game" or "Auto Scan" to get started.</p>
               </div>
             ) : (
-              <div style={{display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${gridSize}px, 1fr))`, gap: '20px'}}>
+              <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'flex-start'}}>
                 {games.map(g => (
-                  <div key={g.id} className="game-card" onClick={() => launchGame(g.id)}>
-                    {g.cover_url ? (
-                      <img src={convertFileSrc(g.cover_url)} alt={g.title} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                  <div 
+                    key={g.id} 
+                    className="game-card resizable-card" 
+                    style={{width: g.imageWidth || gridSize, height: g.imageHeight || gridSize * 1.4}}
+                    onClick={() => launchGame(g.id)}
+                    onMouseUp={(e) => {
+                      const target = e.currentTarget;
+                      if (target.offsetWidth !== (g.imageWidth || gridSize) || target.offsetHeight !== (g.imageHeight || gridSize * 1.4)) {
+                        invoke('update_game_size', { id: g.id, width: target.offsetWidth, height: target.offsetHeight });
+                      }
+                    }}
+                  >
+                    {covers[g.id] ? (
+                      <img src={covers[g.id]} alt={g.title} className="game-cover-img" />
                     ) : (
-                      <div style={{padding: '20px', textAlign: 'center'}}>
+                      <div style={{padding: '20px', textAlign: 'center', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
                         <Gamepad2 size={48} style={{opacity: 0.5, marginBottom: '10px'}} />
                         <h3 style={{fontSize: '1.2rem', color: '#fff'}}>{g.title}</h3>
                       </div>
                     )}
                     <div className="game-overlay">
-                      <div style={{textAlign: 'center'}}>
+                      <div style={{textAlign: 'center', pointerEvents: 'none'}}>
                         <h3 style={{color: '#fff', marginBottom: '5px'}}>{g.title}</h3>
                         <p style={{color: '#39ff14', fontSize: '0.9rem', marginBottom: '10px'}}>Ready to Play</p>
-                        <button style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.5)', color: '#fff', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem'}} onClick={(e) => handleSetCover(g.id, e)}>Edit Cover</button>
+                      </div>
+                      
+                      <div className="game-card-menu-container" onClick={(e) => e.stopPropagation()}>
+                        <button className="game-menu-btn" onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(openMenuId === g.id ? null : g.id);
+                        }}>
+                          <MoreVertical size={20} color="#fff" />
+                        </button>
+                        
+                        {openMenuId === g.id && (
+                          <div className="game-menu-dropdown">
+                            <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); handleSetCover(g.id, e); }}>Edit Cover</button>
+                            <button onClick={(e) => handleRemoveGame(g.id, g.title, e)} style={{color: '#ff5f56'}}>Remove Game</button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

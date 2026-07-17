@@ -17,6 +17,8 @@ struct Game {
     playtime: f32, // in hours
     #[serde(rename = "imageHeight")]
     image_height: u32,
+    #[serde(rename = "imageWidth", default)]
+    image_width: Option<u32>,
     #[serde(default)]
     cover_url: Option<String>,
     #[serde(default)]
@@ -143,6 +145,7 @@ fn add_game(state: State<AppState>) -> Result<Option<Game>, String> {
             completion: 0,
             playtime: 0.0,
             image_height: 250,
+            image_width: None,
             cover_url: None,
             is_steam: false,
         };
@@ -160,7 +163,7 @@ fn add_game(state: State<AppState>) -> Result<Option<Game>, String> {
 #[tauri::command]
 fn set_cover_art(state: State<AppState>, id: String) -> Result<Option<String>, String> {
     if let Some(path) = FileDialog::new()
-        .add_filter("Images", &["png", "jpg", "jpeg", "webp", "gif"])
+        .add_filter("Images", &["png", "jpg", "jpeg"])
         .pick_file()
     {
         let path_str = path.to_string_lossy().to_string();
@@ -173,6 +176,44 @@ fn set_cover_art(state: State<AppState>, id: String) -> Result<Option<String>, S
     } else {
         Ok(None)
     }
+}
+
+#[tauri::command]
+fn remove_game(state: State<AppState>, id: String) -> Result<(), String> {
+    let mut games = state.games.lock().unwrap();
+    games.retain(|g| g.id != id);
+    save_games(&state.data_path, &games);
+    Ok(())
+}
+
+#[tauri::command]
+fn update_game_size(state: State<AppState>, id: String, width: u32, height: u32) -> Result<(), String> {
+    let mut games = state.games.lock().unwrap();
+    if let Some(g) = games.iter_mut().find(|g| g.id == id) {
+        g.image_width = Some(width);
+        g.image_height = height;
+    }
+    save_games(&state.data_path, &games);
+    Ok(())
+}
+
+use base64::{Engine as _, engine::general_purpose::STANDARD as b64};
+use std::io::Read;
+
+#[tauri::command]
+fn read_image_file(path: String) -> Result<String, String> {
+    let mut file = fs::File::open(&path).map_err(|e| e.to_string())?;
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
+    
+    let ext = Path::new(&path).extension().and_then(|e| e.to_str()).unwrap_or("png");
+    let mime = match ext.to_lowercase().as_str() {
+        "jpg" | "jpeg" => "image/jpeg",
+        _ => "image/png",
+    };
+    
+    let b64_str = b64.encode(&buffer);
+    Ok(format!("data:{};base64,{}", mime, b64_str))
 }
 
 #[tauri::command]
@@ -199,6 +240,7 @@ fn scan_local_folder(state: State<AppState>) -> Result<usize, String> {
                                 completion: 0,
                                 playtime: 0.0,
                                 image_height: 300,
+                                image_width: None,
                                 cover_url: None,
                                 is_steam: false,
                             });
@@ -331,6 +373,7 @@ fn scan_steam_games(state: State<AppState>) -> Result<usize, String> {
                                         completion: 0,
                                         playtime: 0.0,
                                         image_height: 300,
+                                image_width: None,
                                         cover_url: Some(format!("https://steamcdn-a.akamaihd.net/steam/apps/{}/library_600x900_2x.jpg", id)),
                                         is_steam: true,
                                     });
@@ -402,7 +445,10 @@ pub fn run() {
             clear_pre_launch_hook,
             convert_to_direct_launch,
             set_cover_art,
-            scan_local_folder
+            scan_local_folder,
+            remove_game,
+            update_game_size,
+            read_image_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
