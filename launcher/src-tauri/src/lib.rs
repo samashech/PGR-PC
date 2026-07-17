@@ -160,13 +160,29 @@ fn add_game(state: State<AppState>) -> Result<Option<Game>, String> {
     }
 }
 
+use image::imageops::FilterType;
+
 #[tauri::command]
 fn set_cover_art(state: State<AppState>, id: String) -> Result<Option<String>, String> {
     if let Some(path) = FileDialog::new()
         .add_filter("Images", &["png", "jpg", "jpeg"])
         .pick_file()
     {
-        let path_str = path.to_string_lossy().to_string();
+        let covers_dir = state.data_path.parent().unwrap_or(Path::new(".")).join("covers");
+        if !covers_dir.exists() {
+            fs::create_dir_all(&covers_dir).map_err(|e| e.to_string())?;
+        }
+
+        let img = image::open(&path).map_err(|e| format!("Failed to open image: {}", e))?;
+        // Resize keeping aspect ratio, fitting within 800x800
+        let resized = img.resize(800, 800, FilterType::Triangle);
+        
+        let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("jpg");
+        let dest_path = covers_dir.join(format!("{}.{}", id, ext));
+        resized.save(&dest_path).map_err(|e| format!("Failed to save image: {}", e))?;
+
+        let path_str = dest_path.to_string_lossy().to_string();
+        
         let mut games = state.games.lock().unwrap();
         if let Some(g) = games.iter_mut().find(|g| g.id == id) {
             g.cover_url = Some(path_str.clone());
