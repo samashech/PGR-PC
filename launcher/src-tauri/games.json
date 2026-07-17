@@ -4,10 +4,32 @@
     "title": "re9",
     "path": "/run/media/samash/Storage/Resident Evil Requiem/re9.exe",
     "completion": 0,
-    "playtime": 0.0,
+    "playtime": 0.0029593722,
     "imageHeight": 250,
     "imageWidth": null,
     "cover_url": "/home/samash/Documents/Pgame-start/launcher/src-tauri/covers/8d0c6f80-dfcb-42ca-aae5-778a4f956863.png",
+    "is_steam": false
+  },
+  {
+    "id": "4f749bb5-264b-48b7-8a75-58f847e09b07",
+    "title": "FarCry4",
+    "path": "/run/media/samash/Samashech/Games ofcourse/FC4/Far Cry 4/bin/FarCry4.exe",
+    "completion": 0,
+    "playtime": 0.0,
+    "imageHeight": 250,
+    "imageWidth": null,
+    "cover_url": "/home/samash/Documents/Pgame-start/launcher/src-tauri/covers/4f749bb5-264b-48b7-8a75-58f847e09b07.jpeg",
+    "is_steam": false
+  },
+  {
+    "id": "532db1cf-424d-4af4-9802-37fd6bdec307",
+    "title": "eldenring",
+    "path": "/run/media/samash/Samashech/Games ofcourse/Elden Ring/Game/eldenring.exe",
+    "completion": 0,
+    "playtime": 0.0,
+    "imageHeight": 250,
+    "imageWidth": null,
+    "cover_url": "/home/samash/Documents/Pgame-start/launcher/src-tauri/covers/532db1cf-424d-4af4-9802-37fd6bdec307.jpeg",
     "is_steam": false
   }
 ]

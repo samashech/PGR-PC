@@ -229,22 +229,22 @@ function App() {
                         <h3 style={{color: '#fff', marginBottom: '5px'}}>{g.title}</h3>
                         <p style={{color: '#39ff14', fontSize: '0.9rem', marginBottom: '10px'}}>Ready to Play</p>
                       </div>
+                    </div>
+                    
+                    <div className="game-card-menu-container" onClick={(e) => e.stopPropagation()}>
+                      <button className="game-menu-btn" onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenMenuId(openMenuId === g.id ? null : g.id);
+                      }}>
+                        ⋮
+                      </button>
                       
-                      <div className="game-card-menu-container" onClick={(e) => e.stopPropagation()}>
-                        <button className="game-menu-btn" onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenMenuId(openMenuId === g.id ? null : g.id);
-                        }}>
-                          <MoreVertical size={20} color="#fff" />
-                        </button>
-                        
-                        {openMenuId === g.id && (
-                          <div className="game-menu-dropdown">
-                            <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); handleSetCover(g.id, e); }}>Edit Cover</button>
-                            <button onClick={(e) => handleRemoveGame(g.id, g.title, e)} style={{color: '#ff5f56'}}>Remove Game</button>
-                          </div>
-                        )}
-                      </div>
+                      {openMenuId === g.id && (
+                        <div className="game-menu-dropdown">
+                          <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); handleSetCover(g.id, e); }}>Edit Cover</button>
+                          <button onClick={(e) => handleRemoveGame(g.id, g.title, e)} style={{color: '#ff5f56'}}>Remove Game</button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
