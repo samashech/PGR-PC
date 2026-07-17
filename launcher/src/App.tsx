@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Play, TrendingUp, Settings, PlusCircle, MonitorPlay, Gamepad2, FolderSearch, MoreVertical } from 'lucide-react';
+import { Play, TrendingUp, Settings, PlusCircle, MonitorPlay, Gamepad2, FolderSearch } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import './App.css';
