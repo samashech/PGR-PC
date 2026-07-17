@@ -3,8 +3,6 @@ import { Download, MonitorPlay, Zap, HardDrive, Gamepad2 } from 'lucide-react';
 function App() {
   return (
     <>
-      <div className="grid-overlay"></div>
-      
       <nav className="nav">
         <div className="logo">
           <Gamepad2 size={32} />
@@ -17,11 +15,11 @@ function App() {
       </nav>
 
       <main className="hero">
-        <h1>Outrun The<br/>Modern Launcher.</h1>
+        <h1>The Modern Retro<br/>Experience.</h1>
         <p>
           A completely local, CRT-styled game launcher built with Rust. 
-          Unleash the nostalgia with authentic physical TV themes, automatic playtime tracking, 
-          and zero cloud telemetry.
+          Experience authentic physical TV themes, automatic playtime tracking, 
+          and zero cloud telemetry in a sleek modern package.
         </p>
         <a href="https://github.com/samashech/PGR-PC/releases/" className="download-btn" target="_blank" rel="noopener noreferrer">
           <Download size={24} />

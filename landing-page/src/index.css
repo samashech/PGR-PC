@@ -1,9 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;600&family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600;700&family=VT323&display=swap');
 
 :root {
-  --neon-green: #39ff14;
-  --neon-purple: #b026ff;
-  --bg-dark: #050510;
+  --accent: #f59e0b; /* Amber */
+  --bg-dark: #050505;
+  --bg-light: #111111;
+  --text-primary: #ededed;
+  --text-muted: #888888;
+  --border: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -15,31 +18,14 @@
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-dark);
-  color: #fff;
+  background-image: radial-gradient(circle at top, var(--bg-light) 0%, var(--bg-dark) 80%);
+  color: var(--text-primary);
   overflow-x: hidden;
-  background-image: 
-    linear-gradient(rgba(176, 38, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(176, 38, 255, 0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-  background-position: center bottom;
+  min-height: 100vh;
 }
 
-/* Retro Grid Perspective Overlay */
 .grid-overlay {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 40vh;
-  background: 
-    linear-gradient(rgba(57, 255, 20, 0.3) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(57, 255, 20, 0.3) 1px, transparent 1px);
-  background-size: 60px 40px;
-  transform: perspective(500px) rotateX(60deg);
-  transform-origin: bottom;
-  z-index: -1;
-  border-top: 2px solid var(--neon-green);
-  box-shadow: 0 -10px 40px rgba(57, 255, 20, 0.5);
+  display: none;
 }
 
 .nav {
@@ -47,27 +33,29 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  background: rgba(5,5,16, 0.8);
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  background: rgba(5, 5, 5, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .logo {
-  font-family: 'Audiowide', cursive;
-  font-size: 1.8rem;
-  color: #fff;
-  text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 10px;
+  letter-spacing: -0.5px;
 }
 
 .hero {
   text-align: center;
-  padding: 100px 20px;
+  padding: 120px 20px;
   min-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -76,45 +64,48 @@ body {
 }
 
 .hero h1 {
-  font-family: 'Audiowide', cursive;
-  font-size: 5rem;
-  text-transform: uppercase;
-  background: linear-gradient(180deg, #fff 0%, var(--neon-purple) 100%);
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 4.5rem;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 20px rgba(176, 38, 255, 0.8));
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .hero p {
-  font-size: 1.3rem;
-  color: #a0a0b0;
-  max-width: 600px;
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  max-width: 650px;
   margin-bottom: 40px;
   line-height: 1.6;
 }
 
 .download-btn {
-  background: transparent;
-  border: 2px solid var(--neon-green);
-  color: var(--neon-green);
-  font-family: 'Audiowide', cursive;
-  font-size: 1.2rem;
-  padding: 15px 40px;
-  border-radius: 5px;
+  background: var(--text-primary);
+  color: var(--bg-dark);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 16px 32px;
+  border-radius: 50px;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 15px;
-  transition: all 0.3s;
-  box-shadow: 0 0 15px rgba(57, 255, 20, 0.2), inset 0 0 15px rgba(57, 255, 20, 0.2);
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+  border: 1px solid transparent;
 }
 
 .download-btn:hover {
-  background: var(--neon-green);
-  color: #000;
-  box-shadow: 0 0 30px rgba(57, 255, 20, 0.8), inset 0 0 10px rgba(0,0,0,0.5);
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border);
+  box-shadow: 0 10px 40px rgba(255, 255, 255, 0.05);
   transform: translateY(-2px);
 }
 
@@ -127,34 +118,37 @@ body {
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 40px;
+  gap: 30px;
   margin-top: 50px;
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(176, 38, 255, 0.3);
-  padding: 30px;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  padding: 40px 30px;
+  border-radius: 16px;
   transition: all 0.3s;
+  backdrop-filter: blur(10px);
 }
 
 .feature-card:hover {
-  border-color: var(--neon-purple);
-  box-shadow: 0 0 20px rgba(176, 38, 255, 0.2);
-  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
 }
 
 .feature-card h3 {
-  font-family: 'Audiowide', cursive;
-  color: var(--neon-purple);
-  margin-bottom: 15px;
-  font-size: 1.5rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  font-size: 1.3rem;
+  letter-spacing: -0.5px;
 }
 
 .feature-card p {
-  color: #888;
-  line-height: 1.5;
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
 .showcase {
@@ -165,19 +159,19 @@ body {
 .showcase-window {
   margin: 0 auto;
   max-width: 800px;
-  background: #111;
-  border-radius: 10px;
-  border: 2px solid #333;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+  background: #0f0f0f;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
   overflow: hidden;
 }
 
 .window-header {
-  background: #222;
-  padding: 10px 15px;
+  background: #1a1a1a;
+  padding: 12px 20px;
   display: flex;
   gap: 8px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border);
 }
 
 .dot { width: 12px; height: 12px; border-radius: 50%; }
@@ -188,8 +182,9 @@ body {
 .window-body {
   padding: 40px;
   font-family: 'VT323', monospace;
-  color: var(--neon-green);
+  color: var(--accent);
   font-size: 1.5rem;
   text-align: left;
-  background: #0a0a0a;
+  background: #0f0f0f;
+  min-height: 250px;
 }
