@@ -1,56 +1,33 @@
-# Pgame Launcher
+# Pgame Launcher 📺
 
-A beautiful, highly customizable, and fully drag-and-drop game launcher built with **Tauri v2**, **React 19**, and **Rust**. 
+Welcome to **Pgame Launcher**—a blazing-fast, lightweight game library manager that abandons boring generic UI in favor of highly immersive, physical display themes. 
 
-Pgame Launcher breaks away from traditional grid-based libraries by giving you a freeform desktop experience. You can drag your game cards anywhere on the screen, resize them in 8 different directions, and customize the entire app's aesthetic with dynamic TV themes.
+Whether you want to launch your games through the warm glow of a 70s wooden television set or a sleek modern metallic monitor, Pgame Launcher turns your game library into a tactile, interactive experience.
 
 ## ✨ Features
 
-- **Freeform Drag & Drop:** Click and drag any game card to place it exactly where you want it on your launcher "desktop."
-- **8-Directional Resizing:** Grab any edge or corner of a game card to dynamically stretch and resize it.
-- **Dynamic Theming:** Choose between vintage CRT/wooden TV bezels or sleek, modern metallic monitors. The game card resize handles automatically shape-shift to match your theme (retro tactile grips vs sleek modern lines).
-- **Auto Steam Scanning:** Automatically detects your installed Steam games and adds them to your library.
-- **Custom Cover Art:** Upload custom box art for any game. The Rust backend automatically compresses and normalizes images for ultra-fast loading without hogging system memory.
-- **Pre-Launch Hooks:** Set a global pre-launch script (like SteamTools) that automatically executes before a game boots up.
-- **Blazing Fast Backend:** Powered by a Tauri + Rust engine, ensuring minimal RAM usage, instantaneous hot-reloading, and robust system-level file management.
+- **Immersive Physical Themes:** Cycle through beautifully crafted, shader-driven display aesthetics:
+  - 🪵 **Theme 1:** Vintage Wooden TV (Warm, retro 70s/80s vibe)
+  - 📻 **Theme 2:** Classic 90s CRT Monitor (Nostalgic plastic casing)
+  - 💻 **Theme 3:** Modern Metallic Display (Sleek, minimalist, and clean)
+- **Universal Compatibility:** Seamlessly integrates with official Steam games as well as independent, DRM-free, or standalone executables. If it runs on your PC, you can add it.
+- **Auto-Scanning:** Instantly detect and import your entire existing library with a single click. 
+- **Progress Tracking:** Keep track of your playtime and gaming milestones natively within the launcher.
+- **Custom Cover Art:** Upload custom box art for any game to make your library uniquely yours.
+- **Ultra-Lightweight:** Engineered to be incredibly resource-efficient. It uses a fraction of the RAM and CPU compared to traditional web-based game launchers, ensuring your PC's power is reserved purely for your games.
 
 ## 🛠 Tech Stack
 
 - **Frontend:** React 19, TypeScript, Vite
 - **Backend:** Rust, Tauri v2
-- **Styling:** Vanilla CSS with custom vintage overlay shaders and modern glows.
-- **Icons:** Lucide React
+- **Styling:** Vanilla CSS (Custom shaders, overlays, and dynamic UI elements)
 
-## 🚀 Getting Started
+## 📥 Download & Installation
 
-### Prerequisites
+Head over to the **[Releases](../../releases)** tab on GitHub to grab the latest version!
 
-- Node.js (v18+)
-- Rust & Cargo
-- Tauri CLI dependencies (see [Tauri Prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites))
+1. Download the executable for your OS (e.g., `.exe` for Windows, `.AppImage` for Linux).
+2. Run the installer or standalone file.
+3. Click "Auto Scan" to instantly populate your library, or manually add your standalone titles!
 
-### Installation
-
-1. Clone the repository
-2. Install Node dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server:
-   ```bash
-   npm run tauri dev
-   ```
-4. Build for production:
-   ```bash
-   npm run tauri build
-   ```
-
-## 💾 Data Storage
-
-Your game library configuration (`games.json`), launcher settings (`settings.json`), and custom compressed cover art are stored safely in your OS's native AppData folder (e.g., `~/.config/com.samash.launcher` on Linux, or `%APPDATA%\com.samash.launcher` on Windows).
-
-## 🎮 Usage
-- **Add a Game:** Click the "Add Game" icon to manually select a game executable.
-- **Scan Steam:** Click the "Auto Scan" icon to magically import your Steam library.
-- **Edit Cover:** Hover over a game card, click the `⋮` menu, and upload a new image. (Supports PNG, JPG, GIF, WEBP).
-- **Customize Theme:** Use the TV icon in the top right to cycle through different bezel themes.
+*(Developers can also clone this repository and run `npm install` followed by `npm run tauri dev` to run the project locally).*
