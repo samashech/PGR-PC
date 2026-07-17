@@ -9,6 +9,16 @@
   padding: 20px;
 }
 
+.desk-environment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background: #111;
+  overflow: hidden;
+}
+
 /* The physical TV case Base */
 .tv-case {
   display: flex;

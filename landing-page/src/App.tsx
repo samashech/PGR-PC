@@ -23,7 +23,7 @@ function App() {
           Unleash the nostalgia with authentic physical TV themes, automatic playtime tracking, 
           and zero cloud telemetry.
         </p>
-        <a href="/RetroX_Installer.exe" className="download-btn" download>
+        <a href="https://github.com/samashech/PGR-PC/releases/latest/download/launcher_0.1.0_x64-setup.exe" className="download-btn">
           <Download size={24} />
           DOWNLOAD FOR WINDOWS
         </a>
