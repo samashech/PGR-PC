@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Play, TrendingUp, Settings, PlusCircle } from 'lucide-react';
-import { invoke } from '@tauri-apps/api/core';
+import { Play, TrendingUp, Settings, PlusCircle, MonitorPlay, Gamepad2, FolderSearch } from 'lucide-react';
+import { invoke, convertFileSrc } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import './App.css';
 
@@ -16,6 +16,7 @@ type Game = {
 };
 
 function App() {
+  const [activeTab, setActiveTab] = useState<'home' | 'progress' | 'settings'>('home');
   const [games, setGames] = useState<Game[]>([]);
   const [hookPath, setHookPath] = useState<string | null>(null);
   const [tvTheme, setTvTheme] = useState<'theme-1' | 'theme-2' | 'theme-3'>('theme-1');
