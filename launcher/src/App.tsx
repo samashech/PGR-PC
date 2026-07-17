@@ -88,20 +88,6 @@ function App() {
     }
   };
 
-  const handleScanSteam = async () => {
-    try {
-      const count = await invoke<number>('scan_steam_games');
-      if (count > 0) {
-        fetchGames();
-        alert(`Successfully found and added ${count} Steam games!`);
-      } else {
-        alert('No new Steam games found.');
-      }
-    } catch (e) {
-      console.error("Failed to scan", e);
-    }
-  };
-
   const handleBackup = async () => {
     try {
       const msg = await invoke<string>('backup_saves');
@@ -163,7 +149,7 @@ function App() {
             <div className="screen-header">
               <h1 className="screen-title">Library</h1>
               <div style={{display: 'flex', gap: '10px'}}>
-                <button className="add-game-btn" onClick={handleScanSteam}>
+                <button className="add-game-btn" onClick={handleAutoScan}>
                   <Settings size={18} />Auto Scan
                 </button>
                 <button className="add-game-btn" onClick={handleAddGame}>
@@ -255,6 +241,10 @@ function App() {
                 <h3 style={{color: '#fff', marginBottom: '10px'}}>Grid Size</h3>
                 <p style={{fontSize: '0.8rem', color: '#888', marginBottom: '15px'}}>Adjust the size of the game covers in your library.</p>
                 <input type="range" min="150" max="400" value={gridSize} onChange={(e) => setGridSize(Number(e.target.value))} style={{width: '100%', cursor: 'pointer'}} />
+              </div>
+              <div style={{marginTop: '30px'}}>
+                <h2 style={{color: '#fff', marginBottom: '20px'}}>Data Management</h2>
+                <button className="add-game-btn" onClick={handleBackup}>Backup Save Data</button>
               </div>
             </div>
           </>
