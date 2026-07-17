@@ -275,21 +275,22 @@ function App() {
           </div>
         </div>
 
-        {tvTheme !== 'theme-3' && (
-          <div className="tv-control-panel">
-            <div className="tv-brand">RETRO-X LAUNCHER</div>
-            <button className={`tv-button ${activeTab === 'home' ? 'active' : ''}`} onClick={() => handleTabChange('home')}>
-              <Play size={24} />Channel 1<span style={{fontSize: '0.6rem', color: '#a8a29e'}}>Library</span>
-            </button>
-            <button className={`tv-button ${activeTab === 'progress' ? 'active' : ''}`} onClick={() => handleTabChange('progress')}>
-              <TrendingUp size={24} />Channel 2<span style={{fontSize: '0.6rem', color: '#a8a29e'}}>Progress</span>
-            </button>
-            <button className={`tv-button ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => handleTabChange('settings')}>
-              <Settings size={24} />Channel 3<span style={{fontSize: '0.6rem', color: '#a8a29e'}}>Tuning</span>
-            </button>
-            {tvTheme === 'theme-1' && <div className="theme-1-grill" style={{marginTop: 'auto', height: '100px'}}></div>}
-          </div>
-        )}
+        <div className="tv-control-panel">
+          {tvTheme !== 'theme-3' && <div className="tv-brand">RETRO-X LAUNCHER</div>}
+          <button className={`tv-button ${activeTab === 'home' ? 'active' : ''}`} onClick={() => handleTabChange('home')}>
+            <Play size={24} />
+            {tvTheme !== 'theme-3' && <>Channel 1<span style={{fontSize: '0.6rem', color: '#a8a29e'}}>Library</span></>}
+          </button>
+          <button className={`tv-button ${activeTab === 'progress' ? 'active' : ''}`} onClick={() => handleTabChange('progress')}>
+            <TrendingUp size={24} />
+            {tvTheme !== 'theme-3' && <>Channel 2<span style={{fontSize: '0.6rem', color: '#a8a29e'}}>Progress</span></>}
+          </button>
+          <button className={`tv-button ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => handleTabChange('settings')}>
+            <Settings size={24} />
+            {tvTheme !== 'theme-3' && <>Channel 3<span style={{fontSize: '0.6rem', color: '#a8a29e'}}>Tuning</span></>}
+          </button>
+          {tvTheme === 'theme-1' && <div className="theme-1-grill" style={{marginTop: 'auto', height: '100px'}}></div>}
+        </div>
       </div>
       <div className="desk-surface"></div>
     </div>

@@ -158,8 +158,59 @@
   box-shadow: none;
 }
 
+.tv-case.theme-3 .crt-screen-wrapper::after {
+  display: none !important;
+}
+
+.tv-case.theme-3 .channel-static {
+  display: none !important;
+}
+
 .tv-case.theme-3 .crt-content {
   text-shadow: none !important;
+  animation: none !important;
+}
+
+.tv-case.theme-3 .tv-control-panel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  width: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.tv-case.theme-3 .tv-button {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin-bottom: 15px;
+  box-shadow: none;
+  color: #aaa;
+  transition: all 0.2s ease;
+}
+
+.tv-case.theme-3 .tv-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.tv-case.theme-3 .tv-button.active {
+  background: #3ae190;
+  color: #000;
+  border-color: #3ae190;
+  box-shadow: 0 0 15px rgba(58, 225, 144, 0.5);
 }
 
 /* The actual glass screen area */
