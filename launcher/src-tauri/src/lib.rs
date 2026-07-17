@@ -129,10 +129,17 @@ fn add_game(state: State<AppState>) -> Result<Option<Game>, String> {
             .to_string_lossy()
             .to_string();
 
+        let path_str = path.to_string_lossy().to_string();
+        
+        let mut games = state.games.lock().unwrap();
+        if games.iter().any(|g| g.path == path_str) {
+            return Err("Game is already in your library!".to_string());
+        }
+
         let new_game = Game {
             id: Uuid::new_v4().to_string(),
             title: file_name,
-            path: path.to_string_lossy().to_string(),
+            path: path_str,
             completion: 0,
             playtime: 0.0,
             image_height: 250,
@@ -147,6 +154,69 @@ fn add_game(state: State<AppState>) -> Result<Option<Game>, String> {
         Ok(Some(new_game))
     } else {
         Ok(None)
+    }
+}
+
+#[tauri::command]
+fn set_cover_art(state: State<AppState>, id: String) -> Result<Option<String>, String> {
+    if let Some(path) = FileDialog::new()
+        .add_filter("Images", &["png", "jpg", "jpeg", "webp", "gif"])
+        .pick_file()
+    {
+        let path_str = path.to_string_lossy().to_string();
+        let mut games = state.games.lock().unwrap();
+        if let Some(g) = games.iter_mut().find(|g| g.id == id) {
+            g.cover_url = Some(path_str.clone());
+        }
+        save_games(&state.data_path, &games);
+        Ok(Some(path_str))
+    } else {
+        Ok(None)
+    }
+}
+
+#[tauri::command]
+fn scan_local_folder(state: State<AppState>) -> Result<usize, String> {
+    if let Some(path) = FileDialog::new().pick_folder() {
+        let mut added_count = 0;
+        let mut games = state.games.lock().unwrap();
+        
+        fn scan_dir(dir: &Path, games: &mut Vec<Game>, added_count: &mut usize, depth: u8) {
+            if depth == 0 { return; }
+            if let Ok(entries) = fs::read_dir(dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.is_dir() {
+                        scan_dir(&path, games, added_count, depth - 1);
+                    } else if path.extension().and_then(|s| s.to_str()) == Some("exe") {
+                        let path_str = path.to_string_lossy().to_string();
+                        if !games.iter().any(|g| g.path == path_str) {
+                            let title = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+                            games.push(Game {
+                                id: Uuid::new_v4().to_string(),
+                                title,
+                                path: path_str,
+                                completion: 0,
+                                playtime: 0.0,
+                                image_height: 300,
+                                cover_url: None,
+                                is_steam: false,
+                            });
+                            *added_count += 1;
+                        }
+                    }
+                }
+            }
+        }
+        
+        scan_dir(&path, &mut games, &mut added_count, 3);
+        
+        if added_count > 0 {
+            save_games(&state.data_path, &games);
+        }
+        Ok(added_count)
+    } else {
+        Ok(0)
     }
 }
 
@@ -201,9 +271,12 @@ fn launch_game(app: AppHandle, id: String) -> Result<(), String> {
                 // Steam launches asynchronously. Wait an arbitrary 3 seconds for UI feedback.
                 std::thread::sleep(std::time::Duration::from_secs(3));
             } else {
-                let mut child = std::process::Command::new(&game.path)
-                    .spawn()
-                    .expect("Failed to launch game");
+                let game_path = Path::new(&game.path);
+                let mut cmd = std::process::Command::new(game_path);
+                if let Some(parent) = game_path.parent() {
+                    cmd.current_dir(parent);
+                }
+                let mut child = cmd.spawn().expect("Failed to launch game");
                 let _ = child.wait();
             }
             
@@ -327,7 +400,9 @@ pub fn run() {
             get_settings,
             set_pre_launch_hook,
             clear_pre_launch_hook,
-            convert_to_direct_launch
+            convert_to_direct_launch,
+            set_cover_art,
+            scan_local_folder
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
