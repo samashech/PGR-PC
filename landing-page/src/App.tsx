@@ -6,7 +6,7 @@ function App() {
       <nav className="nav">
         <div className="logo">
           <Gamepad2 size={32} />
-          RETRO-X
+          PGR-PC
         </div>
         <div>
           <a href="#features" style={{color: '#fff', textDecoration: 'none', marginRight: '20px'}}>Features</a>
@@ -36,7 +36,7 @@ function App() {
             <div className="dot g"></div>
           </div>
           <div className="window-body">
-            <p>&gt; initializing Retro-X...</p>
+            <p>&gt; initializing PGR-PC...</p>
             <p>&gt; loading custom CRT shaders...</p>
             <p>&gt; scanning local directories...</p>
             <p style={{color: '#fff'}}>&gt; 145 LOCAL EXECUTABLES FOUND.</p>
