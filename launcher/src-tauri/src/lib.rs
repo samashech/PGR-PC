@@ -23,6 +23,10 @@ struct Game {
     cover_url: Option<String>,
     #[serde(default)]
     is_steam: bool,
+    #[serde(default)]
+    x: Option<i32>,
+    #[serde(default)]
+    y: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -148,6 +152,8 @@ fn add_game(state: State<AppState>) -> Result<Option<Game>, String> {
             image_width: None,
             cover_url: None,
             is_steam: false,
+            x: None,
+            y: None,
         };
 
         games.push(new_game.clone());
@@ -163,7 +169,7 @@ use image::imageops::FilterType;
 #[tauri::command]
 fn set_cover_art(state: State<AppState>, id: String) -> Result<Option<String>, String> {
     if let Some(path) = FileDialog::new()
-        .add_filter("Images", &["png", "jpg", "jpeg"])
+        .add_filter("Images", &["png", "jpg", "jpeg", "webp"])
         .pick_file()
     {
         let covers_dir = state.data_path.parent().unwrap_or(Path::new(".")).join("covers");
@@ -175,8 +181,7 @@ fn set_cover_art(state: State<AppState>, id: String) -> Result<Option<String>, S
         // Resize keeping aspect ratio, fitting within 800x800
         let resized = img.resize(800, 800, FilterType::Triangle);
         
-        let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("jpg");
-        let dest_path = covers_dir.join(format!("{}.{}", id, ext));
+        let dest_path = covers_dir.join(format!("{}.jpg", id));
         resized.save(&dest_path).map_err(|e| format!("Failed to save image: {}", e))?;
 
         let path_str = dest_path.to_string_lossy().to_string();
@@ -257,6 +262,8 @@ fn scan_local_folder(state: State<AppState>) -> Result<usize, String> {
                                 image_width: None,
                                 cover_url: None,
                                 is_steam: false,
+                                x: None,
+                                y: None,
                             });
                             *added_count += 1;
                         }
@@ -387,9 +394,11 @@ fn scan_steam_games(state: State<AppState>) -> Result<usize, String> {
                                         completion: 0,
                                         playtime: 0.0,
                                         image_height: 300,
-                                image_width: None,
+                                        image_width: None,
                                         cover_url: Some(format!("https://steamcdn-a.akamaihd.net/steam/apps/{}/library_600x900_2x.jpg", id)),
                                         is_steam: true,
+                                        x: None,
+                                        y: None,
                                     });
                                     added_count += 1;
                                 }
@@ -426,16 +435,46 @@ fn backup_saves(app: AppHandle) -> Result<String, String> {
     Ok(format!("Successfully backed up to: {:?}", backup_path))
 }
 
+#[tauri::command]
+fn update_game_position(state: State<AppState>, id: String, x: i32, y: i32) -> Result<(), String> {
+    let mut games = state.games.lock().unwrap();
+    if let Some(game) = games.iter_mut().find(|g| g.id == id) {
+        game.x = Some(x);
+        game.y = Some(y);
+    }
+    save_games(&state.data_path, &games);
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            let mut data_path = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-            let mut settings_path = data_path.clone();
-            
+            let app_data_dir = app.path().app_data_dir().unwrap_or_else(|_| PathBuf::from("."));
+            if !app_data_dir.exists() {
+                let _ = fs::create_dir_all(&app_data_dir);
+            }
+
+            let mut data_path = app_data_dir.clone();
             data_path.push("games.json");
+            let legacy_data = std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")).join("games.json");
+            if legacy_data.exists() && !data_path.exists() {
+                let _ = fs::copy(&legacy_data, &data_path);
+            }
+            
+            let mut settings_path = app_data_dir.clone();
             settings_path.push("settings.json");
+            let legacy_settings = std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")).join("settings.json");
+            if legacy_settings.exists() && !settings_path.exists() {
+                let _ = fs::copy(&legacy_settings, &settings_path);
+            }
+
+            let legacy_covers = std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")).join("covers");
+            let covers_dir = app_data_dir.join("covers");
+            if legacy_covers.exists() && !covers_dir.exists() {
+                let _ = fs::rename(&legacy_covers, &covers_dir);
+            }
             
             let games = load_games(&data_path);
             let settings = load_settings(&settings_path);
@@ -462,6 +501,7 @@ pub fn run() {
             scan_local_folder,
             remove_game,
             update_game_size,
+            update_game_position,
             read_image_file
         ])
         .run(tauri::generate_context!())

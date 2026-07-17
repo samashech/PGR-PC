@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Play, TrendingUp, Settings, PlusCircle, MonitorPlay, Gamepad2, FolderSearch } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
+import { Rnd } from 'react-rnd';
 import { listen } from '@tauri-apps/api/event';
 import './App.css';
 
@@ -14,6 +15,8 @@ type Game = {
   path: string;
   cover_url: string | null;
   is_steam: boolean;
+  x?: number;
+  y?: number;
 };
 
 function App() {
@@ -94,8 +97,9 @@ function App() {
       if (path) {
         fetchGames();
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to set cover", e);
+      alert("Error setting cover: " + String(e));
     }
   };
 
@@ -202,52 +206,67 @@ function App() {
                 <p>Click "Add Game" or "Auto Scan" to get started.</p>
               </div>
             ) : (
-              <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'flex-start'}}>
-                {games.map(g => (
-                  <div 
-                    key={g.id} 
-                    className="game-card resizable-card" 
-                    style={{width: g.imageWidth || gridSize, height: g.imageHeight || gridSize * 1.4}}
-                    onClick={() => launchGame(g.id)}
-                    onMouseUp={(e) => {
-                      const target = e.currentTarget;
-                      if (target.offsetWidth !== (g.imageWidth || gridSize) || target.offsetHeight !== (g.imageHeight || gridSize * 1.4)) {
-                        invoke('update_game_size', { id: g.id, width: target.offsetWidth, height: target.offsetHeight });
-                      }
-                    }}
-                  >
-                    {covers[g.id] ? (
-                      <img src={covers[g.id]} alt={g.title} className="game-cover-img" />
-                    ) : (
-                      <div style={{padding: '20px', textAlign: 'center', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-                        <Gamepad2 size={48} style={{opacity: 0.5, marginBottom: '10px'}} />
-                        <h3 style={{fontSize: '1.2rem', color: '#fff'}}>{g.title}</h3>
-                      </div>
-                    )}
-                    <div className="game-overlay">
-                      <div style={{textAlign: 'center', pointerEvents: 'none'}}>
-                        <h3 style={{color: '#fff', marginBottom: '5px'}}>{g.title}</h3>
-                        <p style={{color: '#39ff14', fontSize: '0.9rem', marginBottom: '10px'}}>Ready to Play</p>
-                      </div>
-                    </div>
-                    
-                    <div className="game-card-menu-container" onClick={(e) => e.stopPropagation()}>
-                      <button className="game-menu-btn" onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(openMenuId === g.id ? null : g.id);
-                      }}>
-                        ⋮
-                      </button>
-                      
-                      {openMenuId === g.id && (
-                        <div className="game-menu-dropdown">
-                          <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); handleSetCover(g.id, e); }}>Edit Cover</button>
-                          <button onClick={(e) => handleRemoveGame(g.id, g.title, e)} style={{color: '#ff5f56'}}>Remove Game</button>
+              <div style={{position: 'relative', width: '100%', minHeight: '800px', flex: 1}}>
+                {games.map((g, index) => {
+                  const defaultX = (index % 4) * (gridSize + 20);
+                  const defaultY = Math.floor(index / 4) * (gridSize * 1.4 + 20);
+                  return (
+                    <Rnd
+                      key={g.id}
+                      bounds="parent"
+                      default={{
+                        x: g.x ?? defaultX,
+                        y: g.y ?? defaultY,
+                        width: g.imageWidth || gridSize,
+                        height: g.imageHeight || gridSize * 1.4
+                      }}
+                      onDragStop={(_e, d) => {
+                        invoke('update_game_position', { id: g.id, x: Math.round(d.x), y: Math.round(d.y) });
+                      }}
+                      onResizeStop={(_e, _direction, ref, _delta, position) => {
+                        invoke('update_game_size', { id: g.id, width: ref.offsetWidth, height: ref.offsetHeight });
+                        invoke('update_game_position', { id: g.id, x: Math.round(position.x), y: Math.round(position.y) });
+                      }}
+                    >
+                      <div 
+                        className="game-card" 
+                        style={{width: '100%', height: '100%'}}
+                        onClick={() => launchGame(g.id)}
+                      >
+                        {covers[g.id] ? (
+                          <img src={covers[g.id]} alt={g.title} className="game-cover-img" />
+                        ) : (
+                          <div style={{padding: '20px', textAlign: 'center', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                            <Gamepad2 size={48} style={{opacity: 0.5, marginBottom: '10px'}} />
+                            <h3 style={{fontSize: '1.2rem', color: '#fff'}}>{g.title}</h3>
+                          </div>
+                        )}
+                        <div className="game-overlay">
+                          <div style={{textAlign: 'center', pointerEvents: 'none'}}>
+                            <h3 style={{color: '#fff', marginBottom: '5px'}}>{g.title}</h3>
+                            <p style={{color: '#39ff14', fontSize: '0.9rem', marginBottom: '10px'}}>Ready to Play</p>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                        
+                        <div className="game-card-menu-container" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+                          <button className="game-menu-btn" onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(openMenuId === g.id ? null : g.id);
+                          }}>
+                            ⋮
+                          </button>
+                          
+                          {openMenuId === g.id && (
+                            <div className="game-menu-dropdown">
+                              <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); handleSetCover(g.id, e); }}>Edit Cover</button>
+                              <button onClick={(e) => handleRemoveGame(g.id, g.title, e)} style={{color: '#ff5f56'}}>Remove Game</button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Rnd>
+                  );
+                })}
               </div>
             )}
           </>
