@@ -737,3 +737,47 @@
 .game-card:hover .game-overlay {
   opacity: 1;
 }
+
+/* --- THEMED RESIZE HANDLES --- */
+
+/* Base invisible handles for edges */
+.resize-handle {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.game-card:hover .resize-handle {
+  opacity: 1;
+}
+
+/* THEME 1 & 2: VINTAGE RETRO GRIPS */
+.resize-handle.theme-1.tl, .resize-handle.theme-1.tr, .resize-handle.theme-1.bl, .resize-handle.theme-1.br,
+.resize-handle.theme-2.tl, .resize-handle.theme-2.tr, .resize-handle.theme-2.bl, .resize-handle.theme-2.br {
+  background: repeating-linear-gradient(
+    45deg,
+    #333,
+    #333 3px,
+    #555 3px,
+    #555 6px
+  );
+  border: 2px solid #222;
+  box-shadow: inset 1px 1px 2px rgba(255,255,255,0.3), 2px 2px 5px rgba(0,0,0,0.8);
+  border-radius: 3px;
+}
+
+/* THEME 3: MODERN SLEEK WHITE LINES */
+.resize-handle.theme-3 {
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 2px #fff inset;
+}
+/* For theme-3 corners, make them look like precise crosshairs/brackets */
+.resize-handle.theme-3.tl, .resize-handle.theme-3.tr, .resize-handle.theme-3.bl, .resize-handle.theme-3.br {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 0 0 10px #fff, 0 0 20px #fff;
+}
+.resize-handle.theme-3.tl { top: -6px !important; left: -6px !important; }
+.resize-handle.theme-3.tr { top: -6px !important; right: -6px !important; }
+.resize-handle.theme-3.bl { bottom: -6px !important; left: -6px !important; }
+.resize-handle.theme-3.br { bottom: -6px !important; right: -6px !important; }

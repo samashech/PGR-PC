@@ -1,10 +1,122 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play, TrendingUp, Settings, PlusCircle, MonitorPlay, Gamepad2, FolderSearch } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
-import { Rnd } from 'react-rnd';
 import { listen } from '@tauri-apps/api/event';
 import './App.css';
 
+const DraggableResizable = ({ 
+  defaultX, defaultY, defaultWidth, defaultHeight, 
+  onDragStop, onResizeStop, children, onClick, theme
+}: any) => {
+  const [pos, setPos] = useState({ x: defaultX, y: defaultY });
+  const [size, setSize] = useState({ w: defaultWidth, h: defaultHeight });
+  
+  const actionRef = useRef<{type: 'drag' | 'resize' | null, dir?: string}>({type: null});
+  const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+  const resizeStartRef = useRef({ x: 0, y: 0, w: 0, h: 0, posX: 0, posY: 0 });
+  const clickStartRef = useRef({ x: 0, y: 0, time: 0 });
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (actionRef.current.type) return;
+    if ((e.target as HTMLElement).closest('.game-card-menu-container') || (e.target as HTMLElement).closest('.resize-handle')) return;
+    
+    e.preventDefault();
+    actionRef.current = { type: 'drag' };
+    dragStartRef.current = { x: e.clientX, y: e.clientY, posX: pos.x, posY: pos.y };
+    clickStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (actionRef.current.type === 'drag') {
+      const dx = e.clientX - dragStartRef.current.x;
+      const dy = e.clientY - dragStartRef.current.y;
+      setPos({ x: dragStartRef.current.posX + dx, y: dragStartRef.current.posY + dy });
+    } else if (actionRef.current.type === 'resize') {
+      const dx = e.clientX - resizeStartRef.current.x;
+      const dy = e.clientY - resizeStartRef.current.y;
+      const dir = actionRef.current.dir!;
+      
+      let newW = resizeStartRef.current.w;
+      let newH = resizeStartRef.current.h;
+      let newX = resizeStartRef.current.posX;
+      let newY = resizeStartRef.current.posY;
+
+      if (dir.includes('r')) newW += dx;
+      if (dir.includes('l')) { newW -= dx; newX += dx; }
+      if (dir.includes('b')) newH += dy;
+      if (dir.includes('t')) { newH -= dy; newY += dy; }
+
+      if (newW < 100) { newX += (newW - 100); newW = 100; }
+      if (newH < 100) { newY += (newH - 100); newH = 100; }
+
+      setSize({ w: newW, h: newH });
+      setPos({ x: newX, y: newY });
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (actionRef.current.type === 'drag') {
+      actionRef.current = { type: null };
+      onDragStop(pos.x, pos.y);
+      try { (e.target as HTMLElement).releasePointerCapture(e.pointerId); } catch(e){}
+      
+      const dx = Math.abs(e.clientX - clickStartRef.current.x);
+      const dy = Math.abs(e.clientY - clickStartRef.current.y);
+      if (dx < 5 && dy < 5 && Date.now() - clickStartRef.current.time < 300) {
+        onClick();
+      }
+    } else if (actionRef.current.type === 'resize') {
+      actionRef.current = { type: null };
+      onResizeStop(size.w, size.h, pos.x, pos.y);
+      try { (e.target as HTMLElement).releasePointerCapture(e.pointerId); } catch(e){}
+    }
+  };
+
+  const startResize = (e: React.PointerEvent, dir: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    actionRef.current = { type: 'resize', dir };
+    resizeStartRef.current = { x: e.clientX, y: e.clientY, w: size.w, h: size.h, posX: pos.x, posY: pos.y };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handles = ['tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r'].map(dir => (
+    <div 
+      key={dir} 
+      className={`resize-handle ${dir} ${theme}`}
+      onPointerDown={(e) => startResize(e, dir)}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      style={{
+        position: 'absolute',
+        width: ['t', 'b'].includes(dir) ? '100%' : (theme === 'theme-3' ? '4px' : '20px'),
+        height: ['l', 'r'].includes(dir) ? '100%' : (theme === 'theme-3' ? '4px' : '20px'),
+        top: dir.includes('t') ? (theme === 'theme-3' ? '-2px' : '-10px') : dir.includes('b') ? 'auto' : '0',
+        bottom: dir.includes('b') ? (theme === 'theme-3' ? '-2px' : '-10px') : 'auto',
+        left: dir.includes('l') ? (theme === 'theme-3' ? '-2px' : '-10px') : dir.includes('r') ? 'auto' : '0',
+        right: dir.includes('r') ? (theme === 'theme-3' ? '-2px' : '-10px') : 'auto',
+        cursor: `${dir}-resize`,
+        zIndex: 100
+      }}
+    />
+  ));
+
+  return (
+    <div 
+      style={{
+        position: 'absolute', left: pos.x, top: pos.y, width: size.w, height: size.h, 
+        touchAction: 'none'
+      }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+    >
+      {handles}
+      {children}
+    </div>
+  );
+};
 type Game = {
   id: string;
   title: string;
@@ -29,6 +141,7 @@ function App() {
   const [gridSize, setGridSize] = useState(250);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [covers, setCovers] = useState<Record<string, string>>({});
+
 
   const fetchGames = async () => {
     try {
@@ -211,27 +324,27 @@ function App() {
                   const defaultX = (index % 4) * (gridSize + 20);
                   const defaultY = Math.floor(index / 4) * (gridSize * 1.4 + 20);
                   return (
-                    <Rnd
+                    <DraggableResizable
                       key={g.id}
-                      bounds="parent"
-                      default={{
-                        x: g.x ?? defaultX,
-                        y: g.y ?? defaultY,
-                        width: g.imageWidth || gridSize,
-                        height: g.imageHeight || gridSize * 1.4
+                      theme={tvTheme}
+                      defaultX={g.x ?? defaultX}
+                      defaultY={g.y ?? defaultY}
+                      defaultWidth={g.imageWidth || gridSize}
+                      defaultHeight={g.imageHeight || gridSize * 1.4}
+                      onDragStop={(x: number, y: number) => {
+                        invoke('update_game_position', { id: g.id, x, y });
+                        setGames(prev => prev.map(game => game.id === g.id ? {...game, x, y} : game));
                       }}
-                      onDragStop={(_e, d) => {
-                        invoke('update_game_position', { id: g.id, x: Math.round(d.x), y: Math.round(d.y) });
+                      onResizeStop={(w: number, h: number, x: number, y: number) => {
+                        invoke('update_game_size', { id: g.id, width: w, height: h });
+                        invoke('update_game_position', { id: g.id, x, y });
+                        setGames(prev => prev.map(game => game.id === g.id ? {...game, imageWidth: w, imageHeight: h, x, y} : game));
                       }}
-                      onResizeStop={(_e, _direction, ref, _delta, position) => {
-                        invoke('update_game_size', { id: g.id, width: ref.offsetWidth, height: ref.offsetHeight });
-                        invoke('update_game_position', { id: g.id, x: Math.round(position.x), y: Math.round(position.y) });
-                      }}
+                      onClick={() => launchGame(g.id)}
                     >
                       <div 
                         className="game-card" 
                         style={{width: '100%', height: '100%'}}
-                        onClick={() => launchGame(g.id)}
                       >
                         {covers[g.id] ? (
                           <img src={covers[g.id]} alt={g.title} className="game-cover-img" />
@@ -264,7 +377,7 @@ function App() {
                           )}
                         </div>
                       </div>
-                    </Rnd>
+                    </DraggableResizable>
                   );
                 })}
               </div>
