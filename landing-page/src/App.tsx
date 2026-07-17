@@ -23,7 +23,7 @@ function App() {
           Unleash the nostalgia with authentic physical TV themes, automatic playtime tracking, 
           and zero cloud telemetry.
         </p>
-        <a href="https://github.com/samashech/PGR-PC/releases/latest/download/launcher_0.1.0_x64-setup.exe" className="download-btn">
+        <a href="https://github.com/samashech/PGR-PC/releases/" className="download-btn" target="_blank" rel="noopener noreferrer">
           <Download size={24} />
           DOWNLOAD FOR WINDOWS
         </a>
