@@ -17,15 +17,21 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-dark);
-  background-image: radial-gradient(circle at top, var(--bg-light) 0%, var(--bg-dark) 80%);
-  color: var(--text-primary);
+  background-color: #050505;
+  color: #ededed;
   overflow-x: hidden;
   min-height: 100vh;
 }
 
 .grid-overlay {
-  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
 }
 
 .nav {
@@ -55,100 +61,127 @@ body {
 
 .hero {
   text-align: center;
-  padding: 120px 20px;
-  min-height: 80vh;
+  padding: 100px 20px;
+  min-height: 50vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 10;
 }
 
-.hero h1 {
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: 4.5rem;
-  letter-spacing: -2px;
-  line-height: 1.1;
-  background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.main-card {
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 50px 30px;
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-icon {
+  background: #fff;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 24px;
 }
 
+.hero h1 {
+  font-family: 'VT323', monospace;
+  font-size: 2.5rem;
+  color: #fff;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+
 .hero p {
-  font-size: 1.25rem;
-  color: var(--text-muted);
-  max-width: 650px;
-  margin-bottom: 40px;
+  font-size: 1.1rem;
+  color: #a1a1aa;
+  max-width: 500px;
+  margin-bottom: 30px;
   line-height: 1.6;
 }
 
 .download-btn {
-  background: var(--text-primary);
-  color: var(--bg-dark);
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 1.1rem;
-  padding: 16px 32px;
-  border-radius: 50px;
+  background: transparent;
+  color: #fff;
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  padding: 12px 24px;
+  border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
-  border: 1px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s;
 }
 
 .download-btn:hover {
-  background: transparent;
-  color: var(--text-primary);
-  border-color: var(--border);
-  box-shadow: 0 10px 40px rgba(255, 255, 255, 0.05);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .features-section {
-  padding: 80px 20px;
-  max-width: 1200px;
+  padding: 40px 20px;
+  max-width: 600px;
   margin: 0 auto;
+  position: relative;
+  z-index: 10;
 }
 
 .features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
-  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
-  padding: 40px 30px;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 30px;
   border-radius: 16px;
-  transition: all 0.3s;
-  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
 }
 
-.feature-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-4px);
+.feature-icon {
+  background: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.feature-text {
+  display: flex;
+  flex-direction: column;
 }
 
 .feature-card h3 {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 12px;
-  font-size: 1.3rem;
-  letter-spacing: -0.5px;
+  font-family: 'VT323', monospace;
+  color: #fff;
+  margin-bottom: 8px;
+  font-size: 1.5rem;
+  letter-spacing: 0.5px;
 }
 
 .feature-card p {
-  color: var(--text-muted);
+  color: #a1a1aa;
   line-height: 1.6;
+  font-size: 1rem;
 }
 
 .showcase {
