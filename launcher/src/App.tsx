@@ -11,6 +11,14 @@ const DraggableResizable = ({
   const [pos, setPos] = useState({ x: defaultX, y: defaultY });
   const [size, setSize] = useState({ w: defaultWidth, h: defaultHeight });
   
+  useEffect(() => {
+    setSize({ w: defaultWidth, h: defaultHeight });
+  }, [defaultWidth, defaultHeight]);
+
+  useEffect(() => {
+    setPos({ x: defaultX, y: defaultY });
+  }, [defaultX, defaultY]);
+
   const actionRef = useRef<{type: 'drag' | 'resize' | null, dir?: string}>({type: null});
   const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
   const resizeStartRef = useRef({ x: 0, y: 0, w: 0, h: 0, posX: 0, posY: 0 });
@@ -147,8 +155,9 @@ function App() {
     try {
       const g = await invoke<Game[]>('get_games');
       setGames(g);
-      const s = await invoke<{pre_launch_path: string | null}>('get_settings');
+      const s = await invoke<{pre_launch_path: string | null, grid_size?: number}>('get_settings');
       setHookPath(s.pre_launch_path);
+      if (s.grid_size) setGridSize(s.grid_size);
 
       const newCovers: Record<string, string> = {};
       for (const game of g) {
@@ -330,15 +339,21 @@ function App() {
                       defaultX={g.x ?? defaultX}
                       defaultY={g.y ?? defaultY}
                       defaultWidth={g.imageWidth || gridSize}
-                      defaultHeight={g.imageHeight || gridSize * 1.4}
+                      defaultHeight={g.imageWidth ? g.imageHeight : gridSize * 1.4}
                       onDragStop={(x: number, y: number) => {
-                        invoke('update_game_position', { id: g.id, x, y });
-                        setGames(prev => prev.map(game => game.id === g.id ? {...game, x, y} : game));
+                        const roundedX = Math.round(x);
+                        const roundedY = Math.round(y);
+                        invoke('update_game_position', { id: g.id, x: roundedX, y: roundedY }).catch(console.error);
+                        setGames(prev => prev.map(game => game.id === g.id ? {...game, x: roundedX, y: roundedY} : game));
                       }}
                       onResizeStop={(w: number, h: number, x: number, y: number) => {
-                        invoke('update_game_size', { id: g.id, width: w, height: h });
-                        invoke('update_game_position', { id: g.id, x, y });
-                        setGames(prev => prev.map(game => game.id === g.id ? {...game, imageWidth: w, imageHeight: h, x, y} : game));
+                        const roundedW = Math.round(w);
+                        const roundedH = Math.round(h);
+                        const roundedX = Math.round(x);
+                        const roundedY = Math.round(y);
+                        invoke('update_game_size', { id: g.id, width: roundedW, height: roundedH }).catch(console.error);
+                        invoke('update_game_position', { id: g.id, x: roundedX, y: roundedY }).catch(console.error);
+                        setGames(prev => prev.map(game => game.id === g.id ? {...game, imageWidth: roundedW, imageHeight: roundedH, x: roundedX, y: roundedY} : game));
                       }}
                       onClick={() => launchGame(g.id)}
                     >
@@ -433,7 +448,17 @@ function App() {
               <div style={{marginTop: '30px', padding: '15px', background: '#1a1a1a', borderRadius: '8px', border: '1px solid #333'}}>
                 <h3 style={{color: '#fff', marginBottom: '10px'}}>Grid Size</h3>
                 <p style={{fontSize: '0.8rem', color: '#888', marginBottom: '15px'}}>Adjust the size of the game covers in your library.</p>
-                <input type="range" min="150" max="400" value={gridSize} onChange={(e) => setGridSize(Number(e.target.value))} style={{width: '100%', cursor: 'pointer'}} />
+                <input type="range" min="150" max="400" value={gridSize} onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setGridSize(val);
+                  invoke('update_grid_size', { size: val }).catch(console.error);
+                }} style={{width: '100%', cursor: 'pointer'}} />
+                <button className="add-game-btn" onClick={async () => {
+                  if (window.confirm("Reset all manual game sizes and positions to snap them back to the grid?")) {
+                    await invoke('reset_all_game_layouts').catch(console.error);
+                    fetchGames();
+                  }
+                }} style={{marginTop: '15px', display: 'block'}}>Reset Custom Layouts</button>
               </div>
               <div style={{marginTop: '30px'}}>
                 <h2 style={{color: '#fff', marginBottom: '20px'}}>Data Management</h2>

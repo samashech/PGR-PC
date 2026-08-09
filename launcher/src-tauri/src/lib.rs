@@ -29,9 +29,22 @@ struct Game {
     y: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+fn default_grid_size() -> u32 { 250 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 struct LauncherSettings {
     pre_launch_path: Option<String>,
+    #[serde(default = "default_grid_size")]
+    grid_size: u32,
+}
+
+impl Default for LauncherSettings {
+    fn default() -> Self {
+        Self {
+            pre_launch_path: None,
+            grid_size: 250,
+        }
+    }
 }
 
 struct AppState {
@@ -78,7 +91,17 @@ fn get_games(state: State<AppState>) -> Vec<Game> {
 
 #[tauri::command]
 fn get_settings(state: State<AppState>) -> LauncherSettings {
-    state.settings.lock().unwrap().clone()
+    let mut s = state.settings.lock().unwrap().clone();
+    if s.grid_size == 0 { s.grid_size = 250; }
+    s
+}
+
+#[tauri::command]
+fn update_grid_size(state: State<AppState>, size: u32) -> Result<(), String> {
+    let mut settings = state.settings.lock().unwrap();
+    settings.grid_size = size;
+    save_settings(&state.settings_path, &settings);
+    Ok(())
 }
 
 #[tauri::command]
@@ -142,15 +165,33 @@ fn add_game(state: State<AppState>) -> Result<Option<Game>, String> {
             return Err("Game is already in your library!".to_string());
         }
 
+        let new_id = Uuid::new_v4().to_string();
+        let mut cover_url = None;
+        
+        let ico_path = path.with_extension("ico");
+        if ico_path.exists() {
+            let covers_dir = state.data_path.parent().unwrap_or(Path::new(".")).join("covers");
+            if !covers_dir.exists() {
+                let _ = fs::create_dir_all(&covers_dir);
+            }
+            if let Ok(img) = image::open(&ico_path) {
+                let resized = img.resize(800, 800, FilterType::Triangle);
+                let dest_path = covers_dir.join(format!("{}.jpg", new_id));
+                if resized.save(&dest_path).is_ok() {
+                    cover_url = Some(dest_path.to_string_lossy().to_string());
+                }
+            }
+        }
+
         let new_game = Game {
-            id: Uuid::new_v4().to_string(),
+            id: new_id,
             title: file_name,
             path: path_str,
             completion: 0,
             playtime: 0.0,
             image_height: 250,
             image_width: None,
-            cover_url: None,
+            cover_url,
             is_steam: false,
             x: None,
             y: None,
@@ -240,27 +281,45 @@ fn scan_local_folder(state: State<AppState>) -> Result<usize, String> {
     if let Some(path) = FileDialog::new().pick_folder() {
         let mut added_count = 0;
         let mut games = state.games.lock().unwrap();
+        let covers_dir = state.data_path.parent().unwrap_or(Path::new(".")).join("covers");
         
-        fn scan_dir(dir: &Path, games: &mut Vec<Game>, added_count: &mut usize, depth: u8) {
+        fn scan_dir(dir: &Path, games: &mut Vec<Game>, added_count: &mut usize, depth: u8, covers_dir: &Path) {
             if depth == 0 { return; }
             if let Ok(entries) = fs::read_dir(dir) {
                 for entry in entries.flatten() {
                     let path = entry.path();
                     if path.is_dir() {
-                        scan_dir(&path, games, added_count, depth - 1);
+                        scan_dir(&path, games, added_count, depth - 1, covers_dir);
                     } else if path.extension().and_then(|s| s.to_str()) == Some("exe") {
                         let path_str = path.to_string_lossy().to_string();
                         if !games.iter().any(|g| g.path == path_str) {
                             let title = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+                            let new_id = Uuid::new_v4().to_string();
+                            let mut cover_url = None;
+                            
+                            let ico_path = path.with_extension("ico");
+                            if ico_path.exists() {
+                                if !covers_dir.exists() {
+                                    let _ = fs::create_dir_all(covers_dir);
+                                }
+                                if let Ok(img) = image::open(&ico_path) {
+                                    let resized = img.resize(800, 800, FilterType::Triangle);
+                                    let dest_path = covers_dir.join(format!("{}.jpg", new_id));
+                                    if resized.save(&dest_path).is_ok() {
+                                        cover_url = Some(dest_path.to_string_lossy().to_string());
+                                    }
+                                }
+                            }
+
                             games.push(Game {
-                                id: Uuid::new_v4().to_string(),
+                                id: new_id,
                                 title,
                                 path: path_str,
                                 completion: 0,
                                 playtime: 0.0,
                                 image_height: 300,
                                 image_width: None,
-                                cover_url: None,
+                                cover_url,
                                 is_steam: false,
                                 x: None,
                                 y: None,
@@ -272,7 +331,7 @@ fn scan_local_folder(state: State<AppState>) -> Result<usize, String> {
             }
         }
         
-        scan_dir(&path, &mut games, &mut added_count, 3);
+        scan_dir(&path, &mut games, &mut added_count, 3, &covers_dir);
         
         if added_count > 0 {
             save_games(&state.data_path, &games);
@@ -446,6 +505,18 @@ fn update_game_position(state: State<AppState>, id: String, x: i32, y: i32) -> R
     Ok(())
 }
 
+#[tauri::command]
+fn reset_all_game_layouts(state: State<AppState>) -> Result<(), String> {
+    let mut games = state.games.lock().unwrap();
+    for game in games.iter_mut() {
+        game.x = None;
+        game.y = None;
+        game.image_width = None;
+    }
+    save_games(&state.data_path, &games);
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -494,6 +565,8 @@ pub fn run() {
             scan_steam_games, 
             backup_saves,
             get_settings,
+            update_grid_size,
+            reset_all_game_layouts,
             set_pre_launch_hook,
             clear_pre_launch_hook,
             convert_to_direct_launch,
