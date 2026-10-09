@@ -1,73 +1,82 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&family=Orbitron:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap');
-
 :root {
-  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #f0f0e7;
+  background: #131514;
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
   font-weight: 400;
-  
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #0d0d0d;
-  
-  --crt-bg: #121517;
-  --crt-screen: #1a1e21;
-  --crt-highlight: #3ae190;
-  --crt-border: #0a0b0c;
-  --text-primary: #e0f2fe;
-  --text-secondary: #94a3b8;
-  
-  --tv-case: #d6d3d1;
-  --tv-panel: #292524;
-  --tv-button: #44403c;
-  --tv-button-active: #78716c;
+  line-height: 1.5;
 }
-
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
-
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
-  min-height: 100vh;
-  background-color: var(--crt-bg);
-  overflow: hidden;
 }
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Orbitron', sans-serif;
-  letter-spacing: 0.05em;
+button,
+input,
+select {
+  font: inherit;
 }
-
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
 }
-button:hover {
-  border-color: var(--crt-highlight);
+button:disabled {
+  cursor: wait;
+  opacity: 0.45;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button,
+input,
+select {
+  color: inherit;
 }
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #41463e;
+  background: #252a24;
+  border-radius: 6px;
+  padding: 9px 13px;
+  font-size: 12px;
+  font-weight: 600;
+}
+button:hover:not(:disabled) {
+  background: #333c2e;
+  border-color: #becb92;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #d8e8aa;
+  outline-offset: 4px;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+button svg {
+  flex-shrink: 0;
+}
+input,
+select {
+  min-width: 0;
+}
+::selection {
+  background: #c9db96;
+  color: #172010;
 }

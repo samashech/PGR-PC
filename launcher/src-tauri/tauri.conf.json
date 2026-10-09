@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "launcher",
+  "productName": "Retro-X",
   "version": "0.1.0",
   "identifier": "com.samash.launcher",
   "build": {
@@ -12,16 +12,24 @@
   "app": {
     "windows": [
       {
-        "title": "launcher",
-        "width": 800,
-        "height": 600
+        "title": "Retro-X \u00b7 Personal Arcade",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 480,
+        "minHeight": 480
       }
     ],
     "security": {
       "csp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": ["**", "$APP_DATA/**", "$APP_CONFIG/**", "$APP_LOCAL_DATA/**", "**/*"]
+        "scope": [
+          "**",
+          "$APP_DATA/**",
+          "$APP_CONFIG/**",
+          "$APP_LOCAL_DATA/**",
+          "**/*"
+        ]
       }
     }
   },

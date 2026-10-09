@@ -22,7 +22,7 @@ function App() {
           </div>
           <h1>Pgame Launcher</h1>
           <p>
-            Experience authentic physical TV themes, automatic playtime tracking, 
+            Experience authentic physical TV themes, a searchable library, favorites, 
             and zero cloud telemetry in a sleek modern package.
           </p>
           <a href="https://github.com/samashech/PGR-PC/releases/" className="download-btn" target="_blank" rel="noopener noreferrer">
@@ -48,8 +48,8 @@ function App() {
               <Zap size={24} color="#000" />
             </div>
             <div className="feature-text">
-              <h3>Steam Hooking</h3>
-              <p>Our advanced Rust backend instantly scans your Steam libraries. Launch your existing Steam games directly through the OS while maintaining full DRM compatibility.</p>
+              <h3>Your library, organized</h3>
+              <p>Scan for Steam games, add local executables, and find your next game with search, favorites, and sorting. Jump back into your most recently played title.</p>
             </div>
           </div>
 
@@ -58,8 +58,8 @@ function App() {
               <HardDrive size={24} color="#000" />
             </div>
             <div className="feature-text">
-              <h3>100% Offline & Local</h3>
-              <p>No forced logins, no cloud syncing, no data harvesting. Your playtime stats and save backups live completely locally on your hard drive.</p>
+              <h3>Local by design</h3>
+              <p>No launcher account required. Your library, favorites, and local-game playtime stay on your device. Export library metadata whenever you need a backup. Steam cover art loads online.</p>
             </div>
           </div>
         </div>
